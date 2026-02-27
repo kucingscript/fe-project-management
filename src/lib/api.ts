@@ -39,6 +39,21 @@ apiClient.interceptors.response.use(
       window.location.href = "/login";
     }
 
+    if (
+      error.response &&
+      error.response.status === 400 &&
+      error.config.method?.toLowerCase() === "get"
+    ) {
+      return Promise.resolve({
+        data: {
+          code: 400,
+          message: error.response.data?.message || "Data not found",
+          data: [],
+          pageInfo: { page: 1, limit: 10, total: 0, totalPage: 0 },
+        },
+      });
+    }
+
     return Promise.reject(error);
   },
 );

@@ -128,7 +128,9 @@ const FormInput = <T extends Record<string, any>>(props: FormInputTypes<T>) => {
             onWheel={(e) =>
               props.type === "number" && (e.target as HTMLElement).blur()
             }
-            {...register(props.name)}
+            {...register(props.name, {
+              valueAsNumber: props.type === "number",
+            })}
           />
         )}
       </div>

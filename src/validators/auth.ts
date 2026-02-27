@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { corporateSchema } from "./corporate";
+import { registerCorporateSchema } from "./corporate";
 
 export const loginSchema = z.object({
-  email: z.email("Invalid email"),
+  email: z.email(),
   password: z
     .string({ error: "Password is required" })
     .min(8, "Password must be at least 8 characters"),
@@ -22,7 +22,7 @@ export const userSchema = z.object({
 });
 
 export const registerUserValidation = z.object({
-  corporate: corporateSchema,
+  corporate: registerCorporateSchema,
   user: userSchema,
 });
 

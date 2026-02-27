@@ -1,17 +1,20 @@
 import {
-  Calendar,
+  Building2,
   ChevronDown,
   ChevronUp,
   Edit,
+  FolderOpen,
   Home,
-  Inbox,
   LifeBuoy,
+  ListChecks,
+  MoreHorizontal,
   Plus,
   Projector,
   Search,
   Send,
   Settings,
   User2,
+  UserRound,
 } from "lucide-react";
 import {
   Sidebar,
@@ -46,40 +49,64 @@ import { memo } from "react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useAuthStore } from "@/stores/auth";
+import { useQuery } from "@tanstack/react-query";
+import { getListProjects } from "@/services/projectService";
 
 const items = [
   {
     title: "Dashboard",
     url: "/admin",
     icon: Home,
+    show: true,
   },
   {
-    title: "COA Categories",
-    url: "/admin/coa-categories",
-    icon: Inbox,
+    title: "Users",
+    url: "/admin/users",
+    icon: UserRound,
+    show: true,
   },
   {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
+    title: "Corporates",
+    url: "/admin/corporates",
+    icon: Building2,
+    // show: hasPermission(PERMISSIONS.CORPORATE.READ),
+    show: true,
   },
   {
     title: "Search",
     url: "#",
     icon: Search,
+    show: true,
   },
   {
     title: "Settings",
     url: "#",
     icon: Settings,
+    show: true,
   },
 ];
 
 const AppSidebar = () => {
-  const { user, logout } = useAuthStore();
+  const { user, logout, selectedCorporate } = useAuthStore();
   const navigate = useNavigate({ from: "/admin" });
   const { pathname } = useLocation();
   const { setOpenMobile, isMobile } = useSidebar();
+
+  const { data: projectsResponse } = useQuery({
+    queryKey: ["sidebar-projects", selectedCorporate],
+    refetchOnWindowFocus: false,
+    queryFn: () =>
+      getListProjects({
+        corporate_id: selectedCorporate!,
+        limit: 5,
+        status: "ACTIVE",
+      }),
+    enabled: !!selectedCorporate,
+  });
+
+  const activeProjects = projectsResponse?.data || [];
+
+  const isProjectsActive = pathname.startsWith("/admin/projects");
 
   const handleLogout = () => {
     logout();
@@ -115,59 +142,97 @@ const AppSidebar = () => {
 
       <SidebarContent className="custom-scrollbar">
         <SidebarGroup>
-          <SidebarGroupLabel>Applications</SidebarGroupLabel>
+          <SidebarGroupLabel>Features</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => {
-                const isActive = pathname === item.url;
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      className={cn(
-                        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors",
-                        {
-                          "bg-sidebar-primary text-white hover:bg-sidebar-primary hover:text-white hover:opacity-90":
-                            isActive,
-                        },
+              {items
+                .filter((item) => item.show)
+                .map((item) => {
+                  const isActive = pathname === item.url;
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        className={cn(
+                          "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors",
+                          {
+                            "bg-sidebar-primary text-white hover:bg-sidebar-primary hover:text-white hover:opacity-90":
+                              isActive,
+                          },
+                        )}
+                      >
+                        <Link to={item.url} onClick={handleLinkClick}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                      {item.title === "Inbox" && (
+                        <SidebarMenuBadge>3</SidebarMenuBadge>
                       )}
-                    >
-                      <Link to={item.url} onClick={handleLinkClick}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                    {item.title === "Inbox" && (
-                      <SidebarMenuBadge>3</SidebarMenuBadge>
-                    )}
-                  </SidebarMenuItem>
-                );
-              })}
+                    </SidebarMenuItem>
+                  );
+                })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Projects</SidebarGroupLabel>
-          <SidebarGroupAction>
+          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+          <SidebarGroupAction title="Add Project">
             <Plus /> <span className="sr-only">Add Project</span>
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin" onClick={handleLinkClick}>
-                    <Projector /> See all projects
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin" onClick={handleLinkClick}>
-                    <Plus /> Create a new project
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              <Collapsible defaultOpen={true} className="group/projects">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton
+                      className={cn(
+                        "transition-colors",
+                        isProjectsActive
+                          ? "bg-sidebar-primary text-white hover:bg-sidebar-primary hover:text-white hover:opacity-90 data-[state=open]:bg-sidebar-primary data-[state=open]:text-white data-[state=open]:hover:bg-sidebar-primary data-[state=open]:hover:text-white"
+                          : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                      )}
+                    >
+                      <FolderOpen />
+                      <span className="font-medium">Projects</span>
+                      <ChevronDown className="ml-auto transition-transform group-data-[state=open]/projects:rotate-180" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {activeProjects.map((project) => (
+                        <SidebarMenuSubItem key={project.project_id}>
+                          <SidebarMenuSubButton asChild>
+                            <Link
+                              to="/admin/projects"
+                              onClick={handleLinkClick}
+                              search={{ page: 1, limit: 10 }}
+                            >
+                              <ListChecks className="mr-2 h-4 w-4" />
+                              <span className="truncate">{project.name}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link
+                            to="/admin/projects"
+                            search={{ page: 1, limit: 10 }}
+                            onClick={handleLinkClick}
+                            className="text-muted-foreground"
+                          >
+                            <MoreHorizontal className="mr-2 h-4 w-4" />
+                            <span>View all projects</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

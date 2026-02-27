@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { registerUser } from "@/services/authService";
 import { handleApiError } from "@/lib/apiError";
 import FormSelect from "@/components/FormSelect";
-import { industryTypeOptions } from "@/constants";
+import { INDUSTRY_OPTIONS } from "@/constants";
 import { useState, useEffect } from "react";
 import AuthInfo from "./-component/authInfo";
 
@@ -262,7 +262,7 @@ function RegisterComponent() {
                     name="corporate.industry_type"
                     label="Industry Type"
                     placeholder="Select Industry Type"
-                    options={industryTypeOptions}
+                    options={INDUSTRY_OPTIONS}
                     icon={
                       <Briefcase className="w-4 h-4 text-muted-foreground" />
                     }

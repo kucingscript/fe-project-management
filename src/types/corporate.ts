@@ -4,7 +4,7 @@ export interface Corporate {
   corporate_id: string;
   corporate_name: string;
   corporate_code: string;
-  corporate_status: string;
+  corporate_status: "ACTIVE" | "INACTIVE";
   role_name: string;
   role_code: string;
   role_scope: string;
@@ -20,15 +20,14 @@ export interface CorporateApiParams {
   limit?: number;
 }
 
-// STORE / AUTH PROPERTIES
 export interface CorporatePayload {
+  code: string;
   name: string;
   email: string;
   phone: string;
-  code: string;
-  industry_type: string;
-  company_size: number;
   address: string;
+  industry_type: "SOFTWARE" | "CONSTRUCTION";
+  company_size: number;
 }
 
 export interface CorporateRegisterResponse {
@@ -40,7 +39,7 @@ export interface CorporateRegisterResponse {
   address: string;
   status: string;
   logo_url: string | null;
-  industry_type: string;
+  industry_type: "SOFTWARE" | "CONSTRUCTION";
   company_size: number;
   subscription_plan: string | null;
   subscription_started_at: string | null;
@@ -48,3 +47,5 @@ export interface CorporateRegisterResponse {
   created_at: string;
   updated_at: string;
 }
+
+export type CorporateResponse = ApiResponse<CorporateRegisterResponse>;
