@@ -12,6 +12,7 @@ import {
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import type { Project } from "@/types/project";
 import { PROJECT_STATUS_UI, PROJECT_TYPE_UI } from "@/constants/ui/project-ui";
+import type { Phase } from "@/types/phase";
 
 export const createNoColumn = <T,>(): ColumnDef<T> => ({
   header: "No",
@@ -109,6 +110,8 @@ export const HeaderWithTooltip = ({
 
 // BADGE COLOR
 
+type BadgeVariant = BadgeProps["variant"];
+
 export const getProjectTypeVariant = (
   p: Project["project_type"],
 ): BadgeProps["variant"] => {
@@ -119,4 +122,17 @@ export const getProjectStatus = (
   p: Project["status"],
 ): BadgeProps["variant"] => {
   return PROJECT_STATUS_UI[p]?.variant || "default";
+};
+
+export const getPhaseStatus = (status: Phase["status"]): BadgeVariant => {
+  switch (status) {
+    case "COMPLETED":
+      return "success";
+    case "IN_PROGRESS":
+      return "info";
+    case "NOT_STARTED":
+      return "warning";
+    default:
+      return "default";
+  }
 };

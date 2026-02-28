@@ -87,7 +87,9 @@ const EditProjectModal = ({
     onSuccess: () => {
       toast.success("Project updated successfully!");
       queryClient.invalidateQueries({ queryKey: ["project-lists"] });
-      queryClient.invalidateQueries({ queryKey: ["sidebar-projects"] });
+      queryClient.invalidateQueries({
+        queryKey: ["sidebar-projects", selectedCorporate],
+      });
       queryClient.invalidateQueries({
         queryKey: ["projects", projectToEdit?.project_id],
       });

@@ -57,7 +57,7 @@ export const useAuthStore = create<AuthStoreState>()(
         })),
     }),
     {
-      name: "auth-storage",
+      name: "pm-storage",
     },
   ),
 );

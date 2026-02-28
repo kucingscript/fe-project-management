@@ -63,7 +63,9 @@ const CreateProjectModal = ({
     onSuccess: () => {
       toast.success("Project created successfully!");
       queryClient.invalidateQueries({ queryKey: ["project-lists"] });
-      queryClient.invalidateQueries({ queryKey: ["sidebar-projects"] });
+      queryClient.invalidateQueries({
+        queryKey: ["sidebar-projects", selectedCorporate],
+      });
       onOpenChange(false);
       reset();
     },

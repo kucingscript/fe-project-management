@@ -164,6 +164,18 @@ const AssignProjectModal = ({
                         label: `${user.user_name} (${user.user_email})`,
                       }))
                     }
+                    // optionsTransformer={(response) =>
+                    //   (response?.data || [])
+                    //     .filter(
+                    //       (user) =>
+                    //         user.role_code !== "ADMIN" &&
+                    //         user.role_code !== "OWNER"
+                    //     )
+                    //     .map((user) => ({
+                    //       value: user.user_id,
+                    //       label: `${user.user_name} (${user.user_email})`,
+                    //     }))
+                    // }
                   />
                 </div>
                 {fields.length > 1 && (

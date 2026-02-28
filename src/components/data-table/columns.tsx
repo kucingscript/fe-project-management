@@ -4,17 +4,23 @@ import {
   createActionsColumn,
   createNoColumn,
   createStatusColumn,
+  getPhaseStatus,
   getProjectStatus,
   getProjectTypeVariant,
 } from "./column-helpers";
 import type { User } from "@/types/user";
 import type { Project } from "@/types/project";
 import Badge from "../ui/badge";
-import { formatDate } from "@/lib/utils";
+import { formatDate, truncateText } from "@/lib/utils";
+import type { Phase } from "@/types/phase";
 
 export const corporateColumns: ColumnDef<Corporate>[] = [
   createNoColumn<Corporate>(),
-  { accessorKey: "corporate_code", header: "Code" },
+  {
+    accessorKey: "corporate_code",
+    header: "Code",
+    cell: ({ row }) => row.original.corporate_code.toUpperCase(),
+  },
   { accessorKey: "corporate_name", header: "Name" },
   createStatusColumn<Corporate>("corporate_status"),
   createActionsColumn<Corporate>(),
@@ -134,4 +140,42 @@ export const projectColumns: ColumnDef<Project>[] = [
     },
   },
   createActionsColumn<Project>(),
+];
+
+export const phaseColumns: ColumnDef<Phase>[] = [
+  createNoColumn<Phase>(),
+  { accessorKey: "name", header: "Name" },
+  {
+    accessorKey: "description",
+    header: "Description",
+    cell: ({ row }) => truncateText(row.original.description, 50),
+  },
+  {
+    id: "timeline",
+    header: "Timeline",
+    cell: ({ row }) => {
+      const start = row.original.start_date;
+      const end = row.original.end_date;
+
+      return (
+        <div className="flex flex-col whitespace-nowrap">
+          <span className="text-sm font-medium">
+            {start ? formatDate(start) : "-"}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {end ? formatDate(end) : "-"}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const status = row.original.status;
+      return <Badge variant={getPhaseStatus(status)}>{status}</Badge>;
+    },
+  },
+  createActionsColumn<Phase>(),
 ];

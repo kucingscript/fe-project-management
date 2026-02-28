@@ -18,6 +18,7 @@ import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
 import { Route as AdminProjectsIndexRouteImport } from './routes/admin/projects/index'
 import { Route as AdminCorporatesIndexRouteImport } from './routes/admin/corporates/index'
+import { Route as AdminProjectsProjectIdPhasesPhaseIdIndexRouteImport } from './routes/admin/projects/$projectId/phases/$phaseId/index'
 
 const AdminRouteRoute = AdminRouteRouteImport.update({
   id: '/admin',
@@ -63,6 +64,12 @@ const AdminCorporatesIndexRoute = AdminCorporatesIndexRouteImport.update({
   path: '/corporates/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminProjectsProjectIdPhasesPhaseIdIndexRoute =
+  AdminProjectsProjectIdPhasesPhaseIdIndexRouteImport.update({
+    id: '/projects/$projectId/phases/$phaseId/',
+    path: '/projects/$projectId/phases/$phaseId/',
+    getParentRoute: () => AdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/admin/corporates/': typeof AdminCorporatesIndexRoute
   '/admin/projects/': typeof AdminProjectsIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
+  '/admin/projects/$projectId/phases/$phaseId/': typeof AdminProjectsProjectIdPhasesPhaseIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -82,6 +90,7 @@ export interface FileRoutesByTo {
   '/admin/corporates': typeof AdminCorporatesIndexRoute
   '/admin/projects': typeof AdminProjectsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
+  '/admin/projects/$projectId/phases/$phaseId': typeof AdminProjectsProjectIdPhasesPhaseIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -94,6 +103,7 @@ export interface FileRoutesById {
   '/admin/corporates/': typeof AdminCorporatesIndexRoute
   '/admin/projects/': typeof AdminProjectsIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
+  '/admin/projects/$projectId/phases/$phaseId/': typeof AdminProjectsProjectIdPhasesPhaseIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/admin/corporates/'
     | '/admin/projects/'
     | '/admin/users/'
+    | '/admin/projects/$projectId/phases/$phaseId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '/admin/corporates'
     | '/admin/projects'
     | '/admin/users'
+    | '/admin/projects/$projectId/phases/$phaseId'
   id:
     | '__root__'
     | '/'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
     | '/admin/corporates/'
     | '/admin/projects/'
     | '/admin/users/'
+    | '/admin/projects/$projectId/phases/$phaseId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -199,6 +212,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCorporatesIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/projects/$projectId/phases/$phaseId/': {
+      id: '/admin/projects/$projectId/phases/$phaseId/'
+      path: '/projects/$projectId/phases/$phaseId'
+      fullPath: '/admin/projects/$projectId/phases/$phaseId/'
+      preLoaderRoute: typeof AdminProjectsProjectIdPhasesPhaseIdIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
   }
 }
 
@@ -221,6 +241,7 @@ interface AdminRouteRouteChildren {
   AdminCorporatesIndexRoute: typeof AdminCorporatesIndexRoute
   AdminProjectsIndexRoute: typeof AdminProjectsIndexRoute
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
+  AdminProjectsProjectIdPhasesPhaseIdIndexRoute: typeof AdminProjectsProjectIdPhasesPhaseIdIndexRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
@@ -228,6 +249,8 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminCorporatesIndexRoute: AdminCorporatesIndexRoute,
   AdminProjectsIndexRoute: AdminProjectsIndexRoute,
   AdminUsersIndexRoute: AdminUsersIndexRoute,
+  AdminProjectsProjectIdPhasesPhaseIdIndexRoute:
+    AdminProjectsProjectIdPhasesPhaseIdIndexRoute,
 }
 
 const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(

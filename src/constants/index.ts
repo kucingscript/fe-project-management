@@ -35,6 +35,12 @@ export const PROJECT_STATUS_OPTION: SelectOption[] = [
   { label: "Archived", value: "ARCHIVED" },
 ];
 
+export const PHASE_STATUS_OPTION: SelectOption[] = [
+  { label: "Not Started", value: "NOT_STARTED" },
+  { label: "In Progress", value: "IN_PROGRESS" },
+  { label: "Completed", value: "COMPLETED" },
+];
+
 // ==================================================================
 
 export const STATUS_OPTIONS_ALL: SelectOption[] = [
@@ -55,4 +61,9 @@ export const PROJECT_TYPE_OPTIONS_ALL: SelectOption[] = [
 export const PROJECT_STATUS_OPTIONS_ALL: SelectOption[] = [
   { label: "All Statuses", value: "ALL" },
   ...PROJECT_STATUS_OPTION,
+];
+
+export const PHASE_STATUS_OPTIONS_ALL: SelectOption[] = [
+  { label: "All Statuses", value: "ALL" },
+  ...PHASE_STATUS_OPTION,
 ];

@@ -13,7 +13,7 @@ export type LoginSchema = z.infer<typeof loginSchema>;
 export const userSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   phone: z.string().regex(/^[0-9]{9,15}$/, "Invalid phone number format"),
-  email: z.email("Invalid email").max(50),
+  email: z.email().max(50),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
