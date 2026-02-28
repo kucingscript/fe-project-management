@@ -15,11 +15,27 @@ export const taskGroupAssignmentSchema = z.object({
         user_id: z.string().min(1, "User ID is required").max(50),
       }),
     )
-    .min(1, "Select at least one user to assign"),
+    .optional(),
 });
 
-export type TaskGroupCreateSchema = z.infer<typeof taskGroupFormSchema>;
-export type TaskGroupUpdateSchema = z.infer<typeof taskGroupFormSchema>;
-export type TaskGroupAssignmentSchema = z.infer<
-  typeof taskGroupAssignmentSchema
+export const assignmentSchema = z.object({
+  access_type: z.enum(["OWNER", "EDITOR", "VIEWER"]),
+  user_ids: z
+    .array(
+      z.object({
+        user_id: z.string().min(1, "User selection is required"),
+      }),
+    )
+    .min(1, "Please select at least one user to assign"),
+});
+
+export const createTaskGroupWithAssignSchema = taskGroupFormSchema.and(
+  taskGroupAssignmentSchema,
+);
+
+export type CreateTaskGroupWithAssignSchema = z.Infer<
+  typeof createTaskGroupWithAssignSchema
 >;
+
+export type AssignSchema = z.Infer<typeof assignmentSchema>;
+export type TaskGroupUpdateSchema = z.Infer<typeof taskGroupFormSchema>;

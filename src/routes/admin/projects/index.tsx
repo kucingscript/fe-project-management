@@ -29,7 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import CreateProjectModal from "../../../components/modal/projects/create";
+import CreateProjectModal from "../../../components/modal/project/create";
 import EditProjectModal from "./-update";
 import AssignProjectModal from "./-assign";
 

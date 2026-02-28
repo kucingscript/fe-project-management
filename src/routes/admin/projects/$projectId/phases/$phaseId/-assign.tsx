@@ -3,11 +3,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import {
-  projectAssignmentSchema,
-  type ProjectAssignmentSchema,
-} from "@/validators/project";
-import { assignUsersToProject } from "@/services/projectService";
+import { assignUsersToTaskGroup } from "@/services/taskGroupService";
 import { getListUsers } from "@/services/userService";
 import FormModal from "@/components/modal/form-modal";
 import FormErrorAlert from "@/components/FormErrorAlert";
@@ -16,25 +12,29 @@ import FormSelectAsync from "@/components/FormSelectAsync";
 import { handleApiError } from "@/lib/apiError";
 import { useAuthStore } from "@/stores/auth";
 import { Shield, Trash, UserPlus, Users } from "lucide-react";
-import type { Project, ProjectAssignmentPayload } from "@/types/project";
 import { Button } from "@/components/ui/button";
+import type { TaskGroup, TaskGroupAssignmentPayload } from "@/types/task-group";
+import { assignmentSchema, type AssignSchema } from "@/validators/task-group";
+import { TASK_GROUP_OPTION } from "@/constants";
 
-interface AssignProjectModalProps {
+interface AssignTaskGroupModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  projectData: Project | null;
+  projectId: string;
+  taskGroup: TaskGroup | null;
 }
 
-const AssignProjectModal = ({
+const AssignTaskGroupModal = ({
   isOpen,
   onOpenChange,
-  projectData,
-}: AssignProjectModalProps) => {
+  projectId,
+  taskGroup,
+}: AssignTaskGroupModalProps) => {
   const queryClient = useQueryClient();
   const { selectedCorporate } = useAuthStore();
 
-  const methods = useForm<ProjectAssignmentSchema>({
-    resolver: zodResolver(projectAssignmentSchema),
+  const methods = useForm<AssignSchema>({
+    resolver: zodResolver(assignmentSchema),
     defaultValues: {
       access_type: "VIEWER",
       user_ids: [{ user_id: "" }],
@@ -47,7 +47,7 @@ const AssignProjectModal = ({
     reset,
     clearErrors,
     control,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
 
   const { fields, append, remove } = useFieldArray({
@@ -66,21 +66,26 @@ const AssignProjectModal = ({
   }, [isOpen, reset, clearErrors]);
 
   const mutation = useMutation({
-    mutationFn: (payload: ProjectAssignmentPayload) => {
-      if (!selectedCorporate || !projectData) {
-        throw new Error("Missing corporate ID or project ID");
+    mutationFn: (payload: TaskGroupAssignmentPayload) => {
+      if (!selectedCorporate || !taskGroup) {
+        throw new Error("Missing corporate ID or task group ID");
       }
-      return assignUsersToProject(
+      return assignUsersToTaskGroup(
         selectedCorporate,
-        projectData.project_id,
+        projectId,
+        taskGroup.task_group_id,
         payload,
       );
     },
     onSuccess: () => {
-      toast.success("Users assigned to project successfully!");
-      queryClient.invalidateQueries({ queryKey: ["project-lists"] });
+      toast.success("Users assigned successfully!");
       queryClient.invalidateQueries({
-        queryKey: ["projects", projectData?.project_id],
+        queryKey: [
+          "task-groups",
+          selectedCorporate,
+          projectId,
+          taskGroup?.phase_id,
+        ],
       });
       onOpenChange(false);
     },
@@ -89,13 +94,21 @@ const AssignProjectModal = ({
     },
   });
 
-  const onSubmit = (data: ProjectAssignmentSchema) => {
-    if (!selectedCorporate || !projectData) return;
+  const onSubmit = (data: AssignSchema) => {
+    if (!selectedCorporate || !taskGroup) return;
 
-    const payload: ProjectAssignmentPayload = {
-      access_type: data.access_type || "VIEWER",
-      user_ids: data.user_ids,
+    const payload: TaskGroupAssignmentPayload = {
+      access_type: data.access_type,
+      user_ids: data.user_ids.filter((u) => u.user_id !== ""),
     };
+
+    if (payload.user_ids.length === 0) {
+      setError("root", {
+        type: "manual",
+        message: "Please select at least one user to assign.",
+      });
+      return;
+    }
 
     mutation.mutate(payload);
   };
@@ -105,7 +118,7 @@ const AssignProjectModal = ({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       title="Assign Users"
-      description={`Assign users to ${projectData?.name || "this project"}.`}
+      description={`Assign users to ${taskGroup?.name || "this task group"}.`}
       methods={methods}
       onSubmit={handleSubmit(onSubmit)}
       isSubmitting={isSubmitting}
@@ -125,10 +138,7 @@ const AssignProjectModal = ({
             name="access_type"
             label="Access Type"
             placeholder="Select access type"
-            options={[
-              { label: "Editor", value: "EDITOR" },
-              { label: "Viewer", value: "VIEWER" },
-            ]}
+            options={TASK_GROUP_OPTION}
             icon={<Shield className="w-4 h-4 text-muted-foreground" />}
             disabled={isSubmitting}
           />
@@ -141,6 +151,12 @@ const AssignProjectModal = ({
           </div>
 
           <div className="space-y-4">
+            {errors.user_ids?.root && (
+              <p className="text-sm text-destructive">
+                {errors.user_ids.root.message}
+              </p>
+            )}
+
             {fields.map((field, index) => (
               <div key={field.id} className="flex items-start gap-2">
                 <div className="flex-1">
@@ -164,18 +180,6 @@ const AssignProjectModal = ({
                         label: `${user.user_name} (${user.user_email})`,
                       }))
                     }
-                    // optionsTransformer={(response) =>
-                    //   (response?.data || [])
-                    //     .filter(
-                    //       (user) =>
-                    //         user.role_code !== "ADMIN" &&
-                    //         user.role_code !== "OWNER"
-                    //     )
-                    //     .map((user) => ({
-                    //       value: user.user_id,
-                    //       label: `${user.user_name} (${user.user_email})`,
-                    //     }))
-                    // }
                   />
                 </div>
                 {fields.length > 1 && (
@@ -210,4 +214,4 @@ const AssignProjectModal = ({
   );
 };
 
-export default AssignProjectModal;
+export default AssignTaskGroupModal;

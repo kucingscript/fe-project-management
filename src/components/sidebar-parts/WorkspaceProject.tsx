@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { ProjectSidebarItem } from "./ProjectSidebarItem";
 import { useState } from "react";
-import CreateProjectModal from "../modal/projects/create";
+import CreateProjectModal from "../modal/project/create";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +38,7 @@ export const WorkspaceProjects = () => {
     queryFn: () =>
       getListProjects({
         corporate_id: selectedCorporate!,
-        limit: 20,
+        limit: 5,
         status: "ACTIVE",
       }),
     enabled: !!selectedCorporate,

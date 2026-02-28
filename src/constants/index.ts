@@ -1,5 +1,16 @@
 import type { SelectOption } from "@/components/FormSelect";
 
+export const COLOR_PALETTE = [
+  "bg-blue-500",
+  "bg-teal-500",
+  "bg-purple-500",
+  "bg-amber-500",
+  "bg-rose-500",
+  "bg-indigo-500",
+  "bg-emerald-500",
+  "bg-cyan-500",
+];
+
 export const INDUSTRY_OPTIONS: SelectOption[] = [
   { value: "SOFTWARE", label: "Software" },
   { value: "CONSTRUCTION", label: "Construction" },
@@ -39,6 +50,12 @@ export const PHASE_STATUS_OPTION: SelectOption[] = [
   { label: "Not Started", value: "NOT_STARTED" },
   { label: "In Progress", value: "IN_PROGRESS" },
   { label: "Completed", value: "COMPLETED" },
+];
+
+export const TASK_GROUP_OPTION: SelectOption[] = [
+  { label: "Owner", value: "OWNER" },
+  { label: "Editor", value: "EDITOR" },
+  { label: "Viewer", value: "VIEWER" },
 ];
 
 // ==================================================================

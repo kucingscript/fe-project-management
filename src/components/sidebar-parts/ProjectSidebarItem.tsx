@@ -1,4 +1,12 @@
-import { ChevronRight, Circle, FolderOpen, Pen, Plus } from "lucide-react";
+import {
+  ChevronRight,
+  Circle,
+  FolderOpen,
+  ListTodo,
+  MoreHorizontal,
+  Pen,
+  Plus,
+} from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
@@ -22,6 +30,13 @@ import type { Phase } from "@/types/phase";
 import { useState } from "react";
 import CreatePhaseModal from "../modal/phase/create";
 import EditPhaseModal from "../modal/phase/update";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import CreateTaskGroupModal from "../modal/task-group/create";
 
 const getPhaseStatusColor = (status: Phase["status"]) => {
   switch (status) {
@@ -48,8 +63,14 @@ export const ProjectSidebarItem = ({
   const { isMobile, setOpenMobile } = useSidebar();
 
   const [isCreatePhaseOpen, setIsCreatePhaseOpen] = useState(false);
+
   const [isEditPhaseOpen, setIsEditPhaseOpen] = useState(false);
-  const [selectedPhaseForEdit, setSelectedPhaseForEdit] = useState<Phase | null>(null);
+  const [selectedPhaseForEdit, setSelectedPhaseForEdit] =
+    useState<Phase | null>(null);
+
+  const [isCreateTaskGroupOpen, setIsCreateTaskGroupOpen] = useState(false);
+  const [selectedPhaseForTaskGroup, setSelectedPhaseForTaskGroup] =
+    useState<Phase | null>(null);
 
   const handleLinkClick = () => {
     if (isMobile) setOpenMobile(false);
@@ -63,17 +84,22 @@ export const ProjectSidebarItem = ({
 
   const handleEditClick = (e: React.MouseEvent, phase: Phase) => {
     e.preventDefault();
-    e.stopPropagation(); 
+    e.stopPropagation();
     setSelectedPhaseForEdit(phase);
     setIsEditPhaseOpen(true);
   };
-  
+
+  const handleCreateTaskGroupClick = (e: React.MouseEvent, phase: Phase) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedPhaseForTaskGroup(phase);
+    setIsCreateTaskGroupOpen(true);
+  };
 
   const { data: phasesResponse } = useQuery({
     queryKey: ["sidebar-phases", corporateId, project.project_id],
     refetchOnWindowFocus: false,
-    queryFn: () =>
-      getListPhases(corporateId, project.project_id, { limit: 100 }),
+    queryFn: () => getListPhases(corporateId, project.project_id, { limit: 5 }),
     enabled: !!corporateId && !!project.project_id,
   });
 
@@ -105,13 +131,23 @@ export const ProjectSidebarItem = ({
             <SidebarMenuSub className="mr-0 pr-0">
               {phases.length > 0 ? (
                 phases.map((phase) => (
-                  <SidebarMenuSubItem key={phase.phase_id} className="group/phase-item">
+                  <SidebarMenuSubItem
+                    key={phase.phase_id}
+                    className="group/phase-item"
+                  >
                     <SidebarMenuSubButton asChild>
                       <Link
-                        to="/admin/projects"
-                        search={{ page: 1, limit: 10 }}
+                        to="/admin/projects/$projectId/phases/$phaseId"
+                        params={{
+                          projectId: project.project_id,
+                          phaseId: phase.phase_id,
+                        }}
                         onClick={handleLinkClick}
-                        className="pr-8" 
+                        className="pr-8 transition-colors"
+                        activeProps={{
+                          className:
+                            "bg-sidebar-accent text-sidebar-accent-foreground font-medium",
+                        }}
                       >
                         <Circle
                           className={cn(
@@ -122,14 +158,32 @@ export const ProjectSidebarItem = ({
                         <span className="truncate">{phase.name}</span>
                       </Link>
                     </SidebarMenuSubButton>
-                    
-                    <button
-                      onClick={(e) => handleEditClick(e, phase)}
-                      className="absolute right-1 top-1 hidden h-5 w-5 items-center justify-center rounded-md hover:bg-sidebar-accent text-muted-foreground hover:text-foreground group-hover/phase-item:flex transition-colors"
-                      title="Edit Phase"
-                    >
-                      <Pen className="h-3.5 w-3.5" />
-                    </button>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          onClick={(e) => e.stopPropagation()}
+                          className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-md hover:bg-sidebar-accent text-muted-foreground hover:text-foreground opacity-0 group-hover/phase-item:opacity-100 data-[state=open]:opacity-100 transition-opacity"
+                          title="Options"
+                        >
+                          <MoreHorizontal className="h-3.5 w-3.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem
+                          onClick={(e) => handleEditClick(e, phase)}
+                        >
+                          <Pen className="mr-2 h-4 w-4 text-muted-foreground" />
+                          Edit Phase
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => handleCreateTaskGroupClick(e, phase)}
+                        >
+                          <ListTodo className="mr-2 h-4 w-4 text-muted-foreground" />
+                          Create Group
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </SidebarMenuSubItem>
                 ))
               ) : (
@@ -155,6 +209,13 @@ export const ProjectSidebarItem = ({
         onOpenChange={setIsEditPhaseOpen}
         projectId={project.project_id}
         phaseToEdit={selectedPhaseForEdit}
+      />
+
+      <CreateTaskGroupModal
+        isOpen={isCreateTaskGroupOpen}
+        onOpenChange={setIsCreateTaskGroupOpen}
+        projectId={project.project_id}
+        defaultPhaseId={selectedPhaseForTaskGroup?.phase_id}
       />
     </>
   );

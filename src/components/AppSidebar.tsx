@@ -14,8 +14,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { WorkspaceProjects } from "./sidebar-parts/WorkSpaceProject";
 import { SidebarUserMenu } from "./sidebar-parts/SidebarUserMenu";
+import { WorkspaceProjects } from "./sidebar-parts/WorkspaceProject";
 
 const mainNavItems = [
   { title: "Dashboard", url: "/admin", icon: Home, show: true },
